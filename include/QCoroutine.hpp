@@ -33,8 +33,6 @@ public:
 
     static void qYield()
     {
-        const auto routine = coroutine::current();
-        QTimer::singleShot(0, std::bind(&coroutine::resume, routine));
         coroutine::yield();
     }
 
@@ -42,7 +40,7 @@ public:
     static void qAwait(const Sender* sender, Func signal)
     {
         const auto routine = coroutine::current();
-        const auto connection = QObject::connect(sender, signal, std::bind(&coroutine::resume, routine));
+        const auto connection = QObject::connect(sender, signal, [routine]{coroutine::resume(routine);});
         coroutine::yield();
         QObject::disconnect(connection);
     }
